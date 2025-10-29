@@ -100,7 +100,7 @@ export const App = () => {
       : safeParse(localStorage.getItem(STORAGE.guessesSoFar), 0);
   });
 
-  const API_URL = useMemo(() => process.env.REACT_APP_API_URL || 'http://localhost:8000/', []);
+  const API_URL = useMemo(() => 'https://phradle-server.onrender.com/', []);
   const [previousGuesses, setPreviousGuesses] = React.useState(() => {
     return typeof window === 'undefined'
       ? []
