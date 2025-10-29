@@ -1,31 +1,27 @@
-// Answer.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import NextResetCountdown from './NextResetCountdown';
 import { darkModeContext } from './App';
 
 export default function Answer({ open, data, onClose }) {
-  // keep mounted long enough to play the exit animation
   const [isMounted, setIsMounted] = useState(open);
-  const [phase, setPhase] = useState(open ? 'enter' : 'idle'); // 'enter' | 'exit' | 'idle'
+  const [phase, setPhase] = useState(open ? 'enter' : 'idle');
   const closeBtnRef = useRef(null);
   const darkMode = React.useContext(darkModeContext);
-  // open/close transitions
+
   useEffect(() => {
     if (open) {
       setIsMounted(true);
-      // allow next paint to apply .is-entering
       requestAnimationFrame(() => setPhase('enter'));
     } else if (isMounted) {
       setPhase('exit');
       const t = setTimeout(() => {
         setIsMounted(false);
         setPhase('idle');
-      }, 180); // match CSS exit duration
+      }, 180);
       return () => clearTimeout(t);
     }
   }, [open, isMounted]);
 
-  // focus the Close button on open; Esc to close
   useEffect(() => {
     if (open && closeBtnRef.current) closeBtnRef.current.focus();
   }, [open]);
@@ -38,10 +34,26 @@ export default function Answer({ open, data, onClose }) {
   }, [open, onClose]);
 
   if (!isMounted) return null;
-  if( !data ) return null;
-  console.log('Answer data:', data);
-  const { genre, sourceTitle, character, year, description } = data.dailyInfo || {};
-  const { grid } = data.dailyPhrase || {};
+
+  const dailyInfo = data?.dailyInfo ?? {};
+  const rawGrid = data?.dailyPhrase?.grid;
+
+  const rows = Math.max(
+    5,
+    Array.isArray(rawGrid) ? rawGrid.length : 0
+  );
+  const cols = Math.max(
+    5,
+    Array.isArray(rawGrid) ? Math.max(0, ...rawGrid.map(r => (Array.isArray(r) ? r.length : 0))) : 0
+  );
+
+  const safeGrid = Array.from({ length: rows }, (_, i) =>
+    Array.from({ length: cols }, (__, j) =>
+      Array.isArray(rawGrid) && Array.isArray(rawGrid[i]) && rawGrid[i][j] != null ? rawGrid[i][j] : ''
+    )
+  );
+
+  const { genre = '—', sourceTitle = '—', character = '—', year = '—', description } = dailyInfo;
 
   return (
     <div
@@ -54,26 +66,31 @@ export default function Answer({ open, data, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-label="Answer"
-        style={{background: darkMode ? 'rgb(30,30,30)' : 'white', color: darkMode ? 'white' : 'black'}}
+        style={{ background: darkMode ? 'rgb(30,30,30)' : 'white', color: darkMode ? 'white' : 'black' }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <h2 style={{ margin: '4px 0' }}>Today’s Answer</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 50px)', gridAutoRows: '50px', gap: 10 }}>
-              {grid.map((row, rowIndex) => (
-                <React.Fragment key={rowIndex}>
-                  {row.map((cell, colIndex) => (
-                    <div key={colIndex} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid black' }}>
-                      {cell}
-                    </div>
-                  ))}
-                </React.Fragment>
-              ))}
-            </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 50px)`, gridAutoRows: '50px', gap: 10 }}>
+            {safeGrid.map((row, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                {row.map((cell, colIndex) => (
+                  <div
+                    key={`${rowIndex}-${colIndex}`}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid black' }}
+                  >
+                    {cell || '\u00A0'}
+                  </div>
+                ))}
+              </React.Fragment>
+            ))}
+          </div>
+
           <div style={{ fontSize: 14, opacity: .8 }}>
-            <div><strong>Genre:</strong> {genre || '—'}</div>
-            <div><strong>Title/Source:</strong> {sourceTitle || '—'}</div>
-            <div><strong>Character/Person:</strong> {character || '—'}</div>
-            <div><strong>Year:</strong> {year || '—'}</div>
+            <div><strong>Genre:</strong> {genre}</div>
+            <div><strong>Title/Source:</strong> {sourceTitle}</div>
+            <div><strong>Character/Person:</strong> {character}</div>
+            <div><strong>Year:</strong> {year}</div>
           </div>
 
           {description ? (
@@ -84,11 +101,7 @@ export default function Answer({ open, data, onClose }) {
 
           <NextResetCountdown />
 
-          <button
-            ref={closeBtnRef}
-            className="help-close-button"
-            onClick={onClose}
-          >
+          <button ref={closeBtnRef} className="help-close-button" onClick={onClose}>
             Close
           </button>
         </div>
