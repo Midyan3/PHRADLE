@@ -36,6 +36,8 @@ jobs:
       # SPA fallback for client-side routing
       - name: Add 404.html
         run: cp build/index.html build/404.html
+        env:
+          VITE_API_URL: https://phradle-server.onrender.com/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
