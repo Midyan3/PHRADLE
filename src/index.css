@@ -1,22 +1,17 @@
-/* Make the root at least the viewport height */
 html {
   height: 100%;
 }
 
-/* Let the page be at least a viewport tall, but grow and scroll as needed */
 body {
   margin: 0;
   min-height: 100dvh;
-  /* modern mobile-safe viewport units; falls back gracefully */
-  min-height: 100svh; /* or 100dvh for dynamic viewport; 100vh as broader fallback */
+  min-height: 100svh; 
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background-color);
   transition: background-color 0.5s ease;
-
-  /* optional, but explicit */
   overflow-y: auto;
 }
 
