@@ -1,4 +1,4 @@
-name: Deploy Vite app to GitHub Pages
+name: Deploy CRA to GitHub Pages
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -27,18 +27,20 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install
         run: npm ci
 
-      - name: Build project
-        run: |
-          npm run build
-          cp dist/index.html dist/404.html
+      - name: Build
+        run: npm run build
+
+      # SPA fallback for client-side routing
+      - name: Add 404.html
+        run: cp build/index.html build/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: build
 
   deploy:
     needs: build
