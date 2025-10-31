@@ -29,6 +29,13 @@ jobs:
 
       - name: Install
         run: npm ci
+      
+      - name: Create .env.production
+        run: |
+          cat > .env.production <<'EOF'
+          REACT_APP_API_URL=${{ secrets.API_BASE_URL }}
+          GENERATE_SOURCEMAP=false
+          EOF
 
       - name: Build
         run: npm run build
