@@ -32,7 +32,9 @@ jobs:
 
       - name: Build
         run: npm run build
-
+        env:
+          GENERATE_SOURCEMAP: 'false'   # <- disables .map files
+          CI: 'false'                   # optional: prevents warnings from failing the build
       # SPA fallback for client-side routing
       - name: Add 404.html
         run: cp build/index.html build/404.html

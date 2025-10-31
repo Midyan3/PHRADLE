@@ -117,6 +117,10 @@ export const App = () => {
     return maxDelay;
   }, []);
 
+  const obj = function() {
+    return this;
+  };
+
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
